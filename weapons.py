@@ -29,8 +29,8 @@ class Weapon:
         self._crit_skill = crit_skill
     
     def attack(self):
-        attack_level, attack_crit, attack_fumble = RedBlackDice(self._crit_skill).roll()
-        return attack_level + self._attack_skill, attack_crit, attack_fumble
+        roll, attack_crit, attack_fumble = RedBlackDice(self._crit_skill).roll()
+        return roll + self._attack_skill, attack_crit, attack_fumble
 
     def damage(self):
         return self._damage_roll() + self._damage_bonus()
@@ -44,10 +44,10 @@ class Weapon:
     def _crit_bonus(self):
         # TODO: multiple dice if above d10
         dice_sides = (self._crit_skill // 2) * 2
-        return ceil(dice_sides * random())
+        return int(dice_sides * random()) + 1
 
     def _damage_bonus(self):
-        bonus = ceil(self._damage_skill // 2) if self.hands == 1 else self._damage_skill
+        bonus = self._damage_skill // 2 if self.hands == 1 else self._damage_skill
         return bonus
 
     def _damage_roll(self):

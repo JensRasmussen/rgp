@@ -18,12 +18,16 @@ class Fighter:
 
     def initiative(self):
         roll, is_crit, is_fumble = RedBlackDice(self._crit_skill).roll()
-        if self._verbose > 0:
-            if is_crit:
-                self._speak(f"Ha! Critted initiative!")
-            elif is_fumble:
-                self._speak("Shit! Fumbled initiative!")
-        return roll + self._initiative_skill, is_crit, is_fumble
+        initiative_level = roll + self._initiative_skill
+
+        if is_crit:
+            self._speak("Ha! Critted initiative!", initiative_level)
+        elif is_fumble:
+            self._speak("Shit! Fumbled initiative!", initiative_level)
+        else:
+            self._speak("Initiative", initiative_level)
+
+        return initiative_level, is_crit, is_fumble
 
     def attack(self, opponent):
         opponent_after = self._attack_weapon(self._weapon, opponent)
@@ -37,35 +41,35 @@ class Fighter:
         if not attack_fumble and not opponent._avoids_attack(attack_level, attack_crit):
             damage = weapon.crit_damage() if attack_crit else weapon.damage()
             opponent_after = opponent._injure(damage)
-        if self._verbose > 0:
-            if attack_crit:
-                self._speak("Ha! Critted attack!")
-            elif attack_fumble:
-                self._speak("Shit! Fumbled attack!")
+        if attack_crit:
+            self._speak("Ha! Critted attack!", attack_level)
+        elif attack_fumble:
+            self._speak("Shit! Fumbled attack!", attack_level)
         return opponent_after
 
     def _avoids_attack(self, attack_level, attack_crit):
-        defence_bonus, defence_crit, defence_fumble = RedBlackDice(self._crit_skill).roll()
-        defence_bonus += self._defence_skill
+        roll, defence_crit, defence_fumble = RedBlackDice(self._crit_skill).roll()
+        defence_bonus = roll + self._defence_skill
         is_avoided = defence_crit or (not defence_fumble and not attack_crit and defence_bonus >= attack_level)
-        if self._verbose > 0:
-            if defence_crit:
-                self._speak("Ha! Critted defence!")
-            elif defence_fumble:
-                self._speak("Shit! Fumbled defence!")
-            elif is_avoided:
-                self._speak("Dodged that one!")
-            else:
-                self._speak("Got hit!")
+
+        if defence_crit:
+            self._speak("Ha! Critted defence!", defence_bonus)
+        elif defence_fumble:
+            self._speak("Shit! Fumbled defence!", defence_bonus)
+        elif is_avoided:
+            self._speak("Dodged that one!", defence_bonus)
+        else:
+            self._speak("Got hit!", defence_bonus)
+
         return is_avoided
     
     def _injure(self, damage):
         injury = max(damage - self._soak, 0)
-        if self._verbose > 0: self._speak(f"Injured {injury}({damage})")
+        if self._verbose > 0: self._speak(f"Injured: {injury}({damage})")
         new_status = Fighter(self._stats, self._verbose)
         new_status._injuries = self._injuries + injury
         if injury >= self._hitpoints or new_status._injuries > new_status._hitpoints:
-            if self._verbose > 0: self._speak("Argh! Defeated!")
+            self._speak("Argh! Defeated!")
             new_status.is_defeated = True
         return new_status
 
@@ -82,9 +86,12 @@ class Fighter:
 
         return weapon, weapon_offhand
 
-    def _speak(self, msg):
+    def _speak(self, msg, roll = None):
         if self._verbose > 0:
-            print(f"{self.name}: {msg}")
+            if roll is None:
+                print(f"{self.name}: {msg}")
+            else:
+                print(f"{self.name}: {msg} ({roll})")
 
 
 
