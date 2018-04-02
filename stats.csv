@@ -1,0 +1,4 @@
+name,initiative_skill,hitpoints,soak,crit_skill,weapon_type,attack_skill,defence_skill,damage_skill,crit_skill,weapon_type_offhand,attack_penalty_offhand
+Conan,5,28,4,4,MEDIUM,10,10,10,6,,0
+Blade,5,28,4,4,TINY,10,10,10,6,TINY,0
+Mouser,5,28,4,4,SMALL,10,10,10,6,,0
